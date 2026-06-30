@@ -18,18 +18,23 @@ public enum OrderErrorCode implements ErrorCode {
         "Order Item not found",
         404
     ),
-    ORDER_STATUS_LOCK(
+    ORDER_NOT_FOUND(
         "ORDER_004",
+        "Order not found",
+        404
+    ),
+    ORDER_STATUS_LOCK(
+        "ORDER_005",
         "Order already out of draft mode",
         403
     ),
     ORDER_EMPTY(
-        "ORDER_005",
+        "ORDER_006",
         "Order cannot checkout with no items",
         409
     ),
     ORDER_INVALID_STATE(
-        "ORDER_006",
+        "ORDER_007",
         "Order have an invalid state",
         500
     );

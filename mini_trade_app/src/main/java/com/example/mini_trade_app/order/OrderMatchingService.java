@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.mini_trade_app.order.entity.Order;
 import com.example.mini_trade_app.order.entity.OrderItem;
 import com.example.mini_trade_app.order.entity.OrderType;
+import com.example.mini_trade_app.shared.exception.BusinessException;
 import com.example.mini_trade_app.trade.TradeRepository;
 import com.example.mini_trade_app.trade.entity.Trade;
 
@@ -15,19 +16,23 @@ import com.example.mini_trade_app.trade.entity.Trade;
 @Transactional
 public class OrderMatchingService {
 
-    private final OrderRepository orderItemRepository;
+    private final OrderRepository orderRepository;
     private final TradeRepository tradeRepository;
 
     public OrderMatchingService(
-        OrderRepository orderItemRepository,
+        OrderRepository orderRepository,
         TradeRepository tradeRepository
     ) {
 
-        this.orderItemRepository = orderItemRepository;
+        this.orderRepository = orderRepository;
         this.tradeRepository = tradeRepository;
     }
 
-    public void match(Order order) {
+    public void match(Long Id) {
+
+        Order order = orderRepository.findById(Id).orElseThrow(
+            () -> new BusinessException(OrderErrorCode.ORDER_ITEM_NOT_FOUND)
+        );
 
         for (OrderItem item : order.getItems()) {
 
@@ -42,7 +47,7 @@ public class OrderMatchingService {
     private void matchItem(OrderItem incomingItem) {
 
         List<OrderItem> candidates =
-            orderItemRepository.findMatchingOrders(
+            orderRepository.findMatchingOrders(
                 incomingItem.getProduct(),
                 incomingItem.getOrder().getType(),
                 incomingItem.getRemainingQuantity()

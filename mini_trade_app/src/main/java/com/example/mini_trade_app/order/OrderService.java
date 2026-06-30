@@ -2,10 +2,12 @@ package com.example.mini_trade_app.order;
 
 import java.util.List;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import com.example.mini_trade_app.config.OrderRabbitConstant;
 import com.example.mini_trade_app.order.dto.CreateOrderForm;
 import com.example.mini_trade_app.order.dto.OrderDetailsResponse;
 import com.example.mini_trade_app.order.dto.OrderItemData;
@@ -29,15 +31,18 @@ public class OrderService {
     private final TradeRepository   tradeRepo;
     private final OrderMapper       orderMapper;
     private final TradeMapper       tradeMapper;
+    private final RabbitTemplate rabbitTemplate;
 
     public OrderService(
         OrderRepository order, TradeRepository trade,
-        OrderMapper mapper, TradeMapper tradeMapper
+        OrderMapper mapper, TradeMapper tradeMapper,
+        RabbitTemplate rabbitTemplate
     ) {
         this.orderRepo = order;
         this.tradeRepo = trade;
         this.orderMapper = mapper;
         this.tradeMapper = tradeMapper;
+        this.rabbitTemplate = rabbitTemplate;
     }
 
     public OrderListingResponse getOrderListing(
@@ -104,6 +109,13 @@ public class OrderService {
         Order order = getValidOrder(orderId, user.getId(), authUser.role()); 
         order.checkout();
         orderRepo.save(order);
+        OrderCheckoutEvent event = new OrderCheckoutEvent(orderId);
+
+        rabbitTemplate.convertAndSend(
+            OrderRabbitConstant.EXCHANGE,
+            OrderRabbitConstant.ROUTING_ORDER_CHECKOUT,
+            event
+        );
     }
 
     public void addOrderItem(

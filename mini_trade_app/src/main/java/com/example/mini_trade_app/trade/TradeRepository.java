@@ -46,3 +46,33 @@ public interface TradeRepository extends JpaRepository<Trade, Long>, JpaSpecific
     """)
     Optional<TradeDetail> findSellerTradeDetails(Long id, Long userId);
 }
+
+/*
+example detail query
+
+public interface TradeSummary {
+
+    Long getTradeId();
+    BigDecimal getTradePrice();
+    LocalDateTime getTradeTime();
+    String getProductName();
+    Long getQuantity();
+}
+
+@Query(value = """
+    SELECT
+        t.id AS tradeId,
+        t.trade_price AS tradePrice,
+        t.trade_time AS tradeTime,
+        p.name AS productName,
+        oi.quantity AS quantity
+    FROM trade t
+    JOIN order_item oi ON t.buyer_order_id = oi.id
+    JOIN product p ON oi.product_id = p.id
+    WHERE oi.user_id = :userId
+    """,
+    nativeQuery = true)
+Page<TradeSummary> findTrades(Long userId, Pageable pageable);
+
+
+*/
