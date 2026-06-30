@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
 
 // import com.example.mini_trade_app.order.OrderRepository;
 import com.example.mini_trade_app.security.AuthUserInfo;
@@ -18,20 +19,14 @@ import com.example.mini_trade_app.trade.mapper.TradeMapper;
 import com.example.mini_trade_app.user.entity.RoleType;
 import com.example.mini_trade_app.user.entity.User;
 
+import lombok.AllArgsConstructor;
+
+@Service
+@AllArgsConstructor
 public class TradeService {
     private final TradeRepository tradeRepo;
     // private final OrderRepository orderRepo;
     private final TradeMapper     tradeMapper;
-
-    public TradeService(
-        TradeRepository tradeRepo, 
-        // OrderRepository orderRepo,
-        TradeMapper tradeMapper
-    ) {
-        this.tradeRepo = tradeRepo;
-        // this.orderRepo = orderRepo;
-        this.tradeMapper = tradeMapper;
-    }
 
     public TradeLisitingResponse getTradesListing(
         TradeLisitingParams params, AuthUserInfo authUser

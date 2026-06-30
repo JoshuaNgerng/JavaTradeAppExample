@@ -10,20 +10,14 @@ import com.example.mini_trade_app.user.dto.UserView;
 import com.example.mini_trade_app.user.entity.User;
 import com.example.mini_trade_app.user.mapper.UserMapper;
 
+import lombok.AllArgsConstructor;
+
 @Service
+@AllArgsConstructor
 public class UserService {
     private final UserRepository    repo;
     private final PasswordService   passwordService;
     private final UserMapper        userMapper;
-
-    public UserService(
-        UserRepository repo, PasswordService passwordService,
-        UserMapper userMapper
-    ) {
-        this.repo = repo;
-        this.passwordService = passwordService;
-        this.userMapper = userMapper;
-    }
 
     public User register(RegisterRequest req) {
         repo.findByEmail(req.email()).orElseThrow(

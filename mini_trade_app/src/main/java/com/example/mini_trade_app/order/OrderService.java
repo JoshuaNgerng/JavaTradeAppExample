@@ -1,11 +1,13 @@
 package com.example.mini_trade_app.order;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.example.mini_trade_app.config.OrderRabbitConstant;
 import com.example.mini_trade_app.order.dto.CreateOrderForm;
@@ -18,6 +20,9 @@ import com.example.mini_trade_app.trade.mapper.TradeMapper;
 import com.example.mini_trade_app.trade.TradeRepository;
 import com.example.mini_trade_app.user.entity.RoleType;
 import com.example.mini_trade_app.user.entity.User;
+
+import lombok.AllArgsConstructor;
+
 import com.example.mini_trade_app.order.entity.Order;
 import com.example.mini_trade_app.order.entity.OrderType;
 import com.example.mini_trade_app.order.mapper.OrderMapper;
@@ -26,24 +31,14 @@ import com.example.mini_trade_app.shared.dto.Listing;
 import com.example.mini_trade_app.shared.exception.BusinessException;
 import com.example.mini_trade_app.order.entity.OrderStatus;
 
+@Service
+@AllArgsConstructor
 public class OrderService {
     private final OrderRepository   orderRepo;
     private final TradeRepository   tradeRepo;
     private final OrderMapper       orderMapper;
     private final TradeMapper       tradeMapper;
     private final RabbitTemplate rabbitTemplate;
-
-    public OrderService(
-        OrderRepository order, TradeRepository trade,
-        OrderMapper mapper, TradeMapper tradeMapper,
-        RabbitTemplate rabbitTemplate
-    ) {
-        this.orderRepo = order;
-        this.tradeRepo = trade;
-        this.orderMapper = mapper;
-        this.tradeMapper = tradeMapper;
-        this.rabbitTemplate = rabbitTemplate;
-    }
 
     public OrderListingResponse getOrderListing(
         OrderListingParams param, AuthUserInfo authUser
@@ -109,7 +104,8 @@ public class OrderService {
         Order order = getValidOrder(orderId, user.getId(), authUser.role()); 
         order.checkout();
         orderRepo.save(order);
-        OrderCheckoutEvent event = new OrderCheckoutEvent(orderId);
+        String uuid = UUID.randomUUID().toString();
+        OrderCheckoutEvent event = new OrderCheckoutEvent(orderId, uuid);
 
         rabbitTemplate.convertAndSend(
             OrderRabbitConstant.EXCHANGE,

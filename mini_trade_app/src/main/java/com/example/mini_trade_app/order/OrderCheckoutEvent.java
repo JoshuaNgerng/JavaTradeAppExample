@@ -1,18 +1,36 @@
 package com.example.mini_trade_app.order;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@Entity
+@Table(
+    name = "order_checkout_events",
+    indexes = {
+        @Index(
+            name = "idx_order_checkout_events_event_id",
+            columnList = "eventId"
+        ),
+        @Index(
+            name = "idx_order_checkout_events_order_id",
+            columnList = "orderId"
+        )
+    }
+)
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor()
 public class OrderCheckoutEvent {
-    private Long orderId;
-
-    public OrderCheckoutEvent(Long orderId) {
-        this.orderId = orderId;
-    }
-
+    @Column(unique = true, nullable = false)
+    private Long    orderId;
+    @Column(unique = true, nullable = false)
+    private String  eventId;
 }
 
 /*
